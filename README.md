@@ -25,18 +25,57 @@ Does the legwork for retrieving data from Coupilia's servers. `$type` can be `'j
 
 | Parameter | Required | Type | Accepted Values |
 |-----------|----------|------|-----------------|
-| recordset | yes | string | all<br>test<br>increment |
+| recordset | yes | string | **all** *or*<br>**test** *or*<br>**increment** |
 | merchantid | optional | int | Merchant ID |
-| network | optional | string | ***Comma separated list of network codes:***<br>**a**	(Amazon)<br>**af**	(Affiliate Future)<br>**av**	(AvantLink)<br>**aw**	(Affiliate Window)<br>**cj**	(Commission Junction)<br>**dr**	(Digital River)<br>**pj**	(Ebay / Pepper Jam)<br>**ir**	(Impact Radius)<br>**lc**	(Link Connector)<br>**ls**	(Link Share)<br>**sas**	(Share A Sale)<br>**td**	(Trade Doubler)<br>**wg**	(Web Gains)<br>**za**	(Zanox) |
-| category | optional | string | ***Comma separated list of categoy codes:***<br>**accessories**<br>**adult**<br>**apparel**<br>**appliances**<br>**crafts**<br>**auto**<br>**baby**<br>**beauty**<br>**bath**<br>**book**<br>**business**<br>**cameras**<br>**charity**<br>**collectibles**<br>**computer**<br>**cooking**<br>**costumes**<br>**dating**<br>**store**<br>**dvd**<br>**ebook**<br>**education**<br>**electronic**<br>**events**<br>**eyewear**<br>**finance**<br>**firearms**<br>**fitness**<br>**gift**<br>**food**<br>**furniture**<br>**gambling**<br>**gaming**<br>**gourmet**<br>**health**<br>**home**<br>**hunting**<br>**insurance**<br>**internet**<br>**jewelry**<br>**jobs**<br>**kidsfamily**<br>**kitchen**<br>**legal**<br>**lingerie**<br>**malls**<br>**marketing**<br>**misc**<br>**music**<br>**office**<br>**communities**<br>**personalized**<br>**pet**<br>**photo**<br>**seasonal**<br>**shipping**<br>**shoes**<br>**deal**<br>**software**<br>**sport**<br>**sportsapparel**<br>**entertainment**<br>**tobacco**<br>**tool**<br>**toy**<br>**travel**<br>**vitality**<br>**web**<br>**women**<br> |
+| network | optional | string | *Comma separated list of network codes:*<br>**a** (Amazon)<br>**af** (Affiliate Future)<br>**av** (AvantLink)<br>**aw** (Affiliate Window)<br>**cj** (Commission Junction)<br>**dr** (Digital River)<br>**pj** (Ebay / Pepper Jam)<br>**ir** (Impact Radius)<br>**lc** (Link Connector)<br>**ls** (Link Share)<br>**sas** (Share A Sale)<br>**td** (Trade Doubler)<br>**wg** (Web Gains)<br>**za** (Zanox) |
+| category | optional | string | *Comma separated list of categoy codes:*<br>**accessories** (Accessories)<br>**adult** (Adult)<br>**apparel** (Apparel)<br>**appliances** (Appliances)<br>**crafts** (Arts and Crafts)<br>**auto** (Auto and Marine)<br>**baby** (Baby)<br>**beauty** (Beauty)<br>**bath** (Bed and Bath)<br>**book** (Books)<br>**business** (Business)<br>**cameras** (Cameras)<br>**charity** (Charity)<br>**collectibles** (Collectibles)<br>**computer** (Computers)<br>**cooking** (Cooking)<br>**costumes** (Costumes)<br>**dating** (Dating)<br>**store** (Department Stores)<br>**dvd** (DVD &amp; Video)<br>**ebook** (Ebook)<br>**education** (Education)<br>**electronic** (Electronics)<br>**events** (Events or Weddings)<br>**eyewear** (Eyewear)<br>**finance** (Finance)<br>**firearms** (Firearms/Tactical)<br>**fitness** (Fitness)<br>**gift** (Flowers and Gifts)<br>**food** (Food &amp; Drinks)<br>**furniture** (Furniture)<br>**gambling** (Gambling)<br>**gaming** (Gaming)<br>**gourmet** (Gourmet)<br>**health** (Health and Personal Care)<br>**home** (Home and Garden)<br>**hunting** (Hunting/Fishing)<br>**insurance** (Insurance)<br>**internet** (Internet/Phone Services)<br>**jewelry** (Jewelry)<br>**jobs** (Jobs)<br>**kidsfamily** (Kids/Family)<br>**kitchen** (Kitchen)<br>**legal** (Legal)<br>**lingerie** (Lingerie)<br>**malls** (Malls)<br>**marketing** (Marketing)<br>**misc** (Miscellaneous)<br>**music** (Music and Dvd)<br>**office** (Office)<br>**communities** (Online Communities)<br>**personalized** (Personalized Products)<br>**pet** (Pets)<br>**photo** (Photography)<br>**seasonal** (Seasonal)<br>**shipping** (Shipping)<br>**shoes** (Shoes)<br>**deal** (Social Deal Sites)<br>**software** (Software)<br>**sport** (Sports &amp; Recreation)<br>**sportsapparel** (Sports Apparel)<br>**entertainment** (Tickets and Entertainment)<br>**tobacco** (Tobacco)<br>**tool** (Tools)<br>**toy** (Toys and Games)<br>**travel** (Travel)<br>**vitality** (Vitality Medical)<br>**web** (Web Services)<br>**women** (Women Only) |
+| dealtype | optional | string | *Comma separated list of deal types:*<br>**affiliatelink** (Affiliate Link)<br>**bogo** (Buy one get one)<br>**coupon** (Coupon)<br>**deal** (Deal, price drop)<br>**shipping** (Free shipping)<br>**genericdeal** (Generic Deal)<br>**genericoffer** (Generic Offer)<br>**genericsale** (Generic Sale)<br>**gwp** (Gift with purchase)<br>**rebate** (Rebate)<br>**sale** (Sale)<br>**sitewide** (Sitewide) |
+| holiday | optional | string | *Comma separated list of holiday types:*<br>**backtoschool** (Back To School)<br>**blackfriday** (Black Friday)<br>**breastcancermonth** (Breast Cancer Month)<br>**cybermonday** (Cyber Monday)<br>**easter** (Easter)<br>**fathersday** (Fathers Day)<br>**friendsfamily** (Friends and Family)<br>**halloween** (Halloween)<br>**mothersday** (Mothers Day)<br>**thanksgiving** (Thanksgiving)<br>**valentinesday** (Valentines Day) |
+
+Returns a list of vouchers.  
+*Example:*
+
+	Array
+	(
+		"0" => StdObject
+		(
+			"id" => [coupon id],
+			"merchant" => [merchant name],
+			"merchantid" => [merchant id],
+			"offer" => [coupon offer],
+			"restrictions" => [coupon restrictions],
+			"url" => StdObject
+			(
+				"0" => StdObject
+				(
+					"location" => [url location],
+					"label" => [label]
+				)
+			),
+			"code" => [coupon code],
+			"startdate" => [coupon start date],
+			"enddate" => [coupon end date],
+			"category" => [coupon category],
+			"dealtype" => [coupon deal type],
+			"holiday" => [coupon holiday],
+			"rating" => [coupon rating],
+			"website" => [merchant website],
+			"logo" => [merchant logo],
+			"network" => [coupon network],
+			"networkid" => [merchant id for affiliate network],
+			"keywords" => [coupon keywords],
+			"country" => [coupon country]
+		)
+	)
 
 ###`lastQuery()`
 Returns the last query's information.  
 *Example:*
 
-    array(4) {
-      ["date"] => int(1234567890)
-      ["url"] => string(98) "http://www.coupilia.com/feeds/coupons_json.cfm?recordset=test&token=ab123cde4-fghi-jk56-l7m8901n23"
-      ["response"]=> string(2) "[]"
-      ["data"]=> array(0) {}
-    }
+    Array
+    (
+        "date" => 1234567890,
+        "url" => "http://www.coupilia.com/feeds/coupons_json.cfm?recordset=test&token=ab123cde4-fghi-jk56-l7m8901n23",
+        "response" => "[]",
+        "data" => Array()
+    )
