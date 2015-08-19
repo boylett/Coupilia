@@ -116,18 +116,6 @@
 			return $response;
 		}
 
-		public function getJSON($params = NULL)
-		{
-			// JSON-specific GET request
-			return $this->get($params, "json");
-		}
-
-		public function getXML($params = NULL)
-		{
-			// XML-specific GET request
-			return $this->get($params, "xml");
-		}
-
 		public function lastQuery()
 		{
 			// Return the last used query
