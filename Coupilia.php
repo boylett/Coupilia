@@ -162,7 +162,7 @@
 			// Supply the API token
 			$params["token"] = $this->token;
 
-			// Sanitize the desired feed type (makes no real difference to the end user)
+			// Sanitize the desired feed type
 			$this->type = (preg_match("/^([\s]+)?json([\s]+)?$/i", $this->type)) ? "json" : "xml";
 			if(!$type) $type = $this->type;
 
