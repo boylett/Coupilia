@@ -14,6 +14,132 @@
 		public $history = array();
 		public $debug = false;
 
+		// A list of all available Coupilia categories
+		public $categories = array
+		(
+			"accessories" => "Accessories",
+			"adult" => "Adult",
+			"apparel" => "Apparel",
+			"appliances" => "Appliances",
+			"crafts" => "Arts and Crafts",
+			"auto" => "Auto and Marine",
+			"baby" => "Baby",
+			"beauty" => "Beauty",
+			"bath" => "Bed and Bath",
+			"book" => "Books",
+			"business" => "Business",
+			"cameras" => "Cameras",
+			"charity" => "Charity",
+			"collectibles" => "Collectibles",
+			"computer" => "Computers",
+			"cooking" => "Cooking",
+			"costumes" => "Costumes",
+			"dating" => "Dating",
+			"store" => "Department Stores",
+			"dvd" => "DVD & Video",
+			"ebook" => "Ebook",
+			"education" => "Education",
+			"electronic" => "Electronics",
+			"events" => "Events or Weddings",
+			"eyewear" => "Eyewear",
+			"finance" => "Finance",
+			"firearms" => "Firearms/Tactical",
+			"fitness" => "Fitness",
+			"gift" => "Flowers and Gifts",
+			"food" => "Food & Drinks",
+			"furniture" => "Furniture",
+			"gambling" => "Gambling",
+			"gaming" => "Gaming",
+			"gourmet" => "Gourmet",
+			"health" => "Health and Personal Care",
+			"home" => "Home and Garden",
+			"hunting" => "Hunting/Fishing",
+			"insurance" => "Insurance",
+			"internet" => "Internet/Phone Services",
+			"jewelry" => "Jewelry",
+			"jobs" => "Jobs",
+			"kidsfamily" => "Kids/Family",
+			"kitchen" => "Kitchen",
+			"legal" => "Legal",
+			"lingerie" => "Lingerie",
+			"malls" => "Malls",
+			"marketing" => "Marketing",
+			"misc" => "Miscellaneous",
+			"music" => "Music and Dvd",
+			"office" => "Office",
+			"communities" => "Online Communities",
+			"personalized" => "Personalized Products",
+			"pet" => "Pets",
+			"photo" => "Photography",
+			"seasonal" => "Seasonal",
+			"shipping" => "Shipping",
+			"shoes" => "Shoes",
+			"deal" => "Social Deal Sites",
+			"software" => "Software",
+			"sport" => "Sports & Recreation",
+			"sportsapparel" => "Sports Apparel",
+			"entertainment" => "Tickets and Entertainment",
+			"tobacco" => "Tobacco",
+			"tool" => "Tools",
+			"toy" => "Toys and Games",
+			"travel" => "Travel",
+			"vitality" => "Vitality Medical",
+			"web" => "Web Services",
+			"women" => "Women Only"
+		);
+
+		// A list of all available Coupilia dealtypes
+		public $dealtypes = array
+		(
+			"affiliatelink" => "Affiliate Link",
+			"bogo" => "Buy one get one",
+			"coupon" => "Coupon",
+			"deal" => "Deal, price drop",
+			"shipping" => "Free shipping",
+			"genericdeal" => "Generic Deal",
+			"genericoffer" => "Generic Offer",
+			"genericsale" => "Generic Sale",
+			"gwp" => "Gift with purchase",
+			"rebate" => "Rebate",
+			"sale" => "Sale",
+			"sitewide" => "Sitewide"
+		);
+
+		// A list of all available Coupilia holidays
+		public $holidays = array
+		(
+			"backtoschool" => "Back To School",
+			"blackfriday" => "Black Friday",
+			"breastcancermonth" => "Breast Cancer Month",
+			"cybermonday" => "Cyber Monday",
+			"easter" => "Easter",
+			"fathersday" => "Fathers Day",
+			"friendsfamily" => "Friends and Family",
+			"halloween" => "Halloween",
+			"mothersday" => "Mothers Day",
+			"thanksgiving" => "Thanksgiving",
+			"valentinesday" => "Valentines Day"
+		);
+
+		// A list of all available Coupilia networks
+		public $networks = array
+		(
+			"af" => "Affiliate Future",
+			"aw" => "Affiliate Window",
+			"an" => "Affilinet",
+			"av" => "AvantLink",
+			"cj" => "Commission Junction",
+			"dr" => "Digital River",
+			"pj" => "Ebay Enterprise Network",
+			"ir" => "Impact Radius",
+			"lc" => "Link Connector",
+			"ls" => "Linkshare",
+			"sas" => "Shareasale",
+			"td" => "TradeDoubler",
+			"wg" => "Webgains",
+			"za" => "Zanox"
+		);
+
 		public function __construct($token)
 		{
 			// Setup the API token on initialization
