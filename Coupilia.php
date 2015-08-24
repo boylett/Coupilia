@@ -4,7 +4,7 @@
 	 *
 	 * Author:		Ryan Boylett <http://boylett.uk/>
 	 * Update:		http://boylett.uk/classes/php/coupilia/update
-	 * Version:		1.0.0
+	 * Version:		1.0.1
 	 */
 
 	class Coupilia
