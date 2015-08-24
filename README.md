@@ -1,4 +1,4 @@
-#Coupilia 1.0.0
+#Coupilia 1.0.1
 A simple PHP Class for the [Coupilia Voucher feed](http://www.coupilia.com/) API
 
 ##Installation
