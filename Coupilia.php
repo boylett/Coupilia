@@ -4,7 +4,7 @@
 	 *
 	 * Author:		Ryan Boylett <http://boylett.uk/>
 	 * Update:		http://boylett.uk/classes/php/coupilia/update
-	 * Version:		1.0.1
+	 * Version:		1.0.2
 	 */
 
 	class Coupilia
@@ -13,6 +13,7 @@
 		public $type = "json";
 		public $history = array();
 		public $debug = false;
+		public $filter = false;
 
 		// A list of all available Coupilia categories
 		public $categories = array
@@ -162,18 +163,23 @@
 			// Supply the API token
 			$params["token"] = $this->token;
 
-			// Sanitize the desired feed type
+			// Sanitize the desired feed type (makes no real difference to the end user)
 			$this->type = (preg_match("/^([\s]+)?json([\s]+)?$/i", $this->type)) ? "json" : "xml";
 			if(!$type) $type = $this->type;
 
 			// Construct the HTTP request URL
 			$url = "http://www.coupilia.com/feeds/coupons_{$type}.cfm?" . http_build_query($params);
 
-			// Add the query to our history cache
-			$hist = time();
-			$this->history[$hist] = array
+			// If a cached version of this query exists, return it to save an expensive API call
+			if(isset($this->history[$url]))
+			{
+				return isset($this->history[$url]['filtered_data']) ? $this->history[$url]['filtered_data'] : $this->history[$url]['data'];
+			}
+
+			// If no cached version exists, add one
+			$this->history[$url] = array
 			(
-				"date" => $hist,
+				"date" => time(),
 				"url" => $url
 			);
 
@@ -187,7 +193,7 @@
 				$response = trim($response);
 
 				// Add the raw response data to the history record
-				$this->history[$hist]["response"] = $response;
+				$this->history[$url]["response"] = $response;
 			}
 
 			// Throw an exception if no data was received and debug mode is enabled
@@ -236,7 +242,35 @@
 			}
 
 			// Add the parsed response data to the history record
-			$this->history[$hist]["data"] = $response;
+			$this->history[$url]["data"] = $response;
+
+			// Filter out any invalid coupons
+			if($this->filter)
+			{
+				// If no date was supplied, assume today
+				$valid = !is_int($this->filter) ? time() : $this->filter;
+
+				// Start a new collection
+				$valid_response = array();
+
+				foreach($response as $coupon)
+				{
+					// Get the exiration date as a timestamp
+					$exp = strtotime("00:00:00 " . (isset($coupon->ENDDATE) ? $coupon->ENDDATE : ($coupon->enddate ? $coupon->enddate : '1/1/1970')));
+
+					// If the expiration date is in the future, add the coupon to the valid coupons list
+					if($valid < $exp)
+					{
+						$valid_response[] = $coupon;
+					}
+				}
+
+				// Push the filtered data to the history object
+				$this->history[$url]["filtered_data"] = $valid_response;
+
+				// Return the filtered data
+				return $valid_response;
+			}
 
 			// Return the data
 			return $response;
