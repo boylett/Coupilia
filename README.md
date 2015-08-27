@@ -10,6 +10,7 @@ No messy scripts or command line access required, simply copy `Coupilia.php` int
 
     $APIKey		= "ab123cde4-fghi-jk56-l7m8901n23";
     $Coupilia	= new Coupilia($APIKey);
+    $Coupilia->filter = true;
     
     $vouchers	= $Coupilia->get(array
     (
@@ -19,7 +20,7 @@ No messy scripts or command line access required, simply copy `Coupilia.php` int
 ##Available Options
 
 ###`filter`
-Currently only accepts a timestamp (integer). Filters out coupons whose end date have surpassed the timestamp provided.
+Currently accepts a timestamp (integer) or boolean. Filters out coupons whose end date have surpassed the timestamp provided (or the current date if a boolean was given).
 
 ##Available Methods
 
