@@ -10,6 +10,7 @@ No messy scripts or command line access required, simply copy `Coupilia.php` int
 
     $APIKey		= "ab123cde4-fghi-jk56-l7m8901n23";
     $Coupilia	= new Coupilia($APIKey);
+    
     $Coupilia->filter = true;
     
     $vouchers	= $Coupilia->get(array
