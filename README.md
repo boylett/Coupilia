@@ -1,4 +1,4 @@
-#Coupilia 1.0.1
+#Coupilia 1.0.2
 A simple PHP Class for the [Coupilia Voucher feed](http://www.coupilia.com/) API
 
 ##Installation
@@ -15,6 +15,11 @@ No messy scripts or command line access required, simply copy `Coupilia.php` int
     (
         "recordset" => "all"
     ));
+
+##Available Options
+
+###`filter`
+Currently only accepts a timestamp (integer). Filters out coupons whose end date have surpassed the timestamp provided.
 
 ##Available Methods
 
