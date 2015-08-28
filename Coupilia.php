@@ -4,16 +4,16 @@
 	 *
 	 * Author:		Ryan Boylett <http://boylett.uk/>
 	 * Update:		http://boylett.uk/classes/php/coupilia/update
-	 * Version:		1.0.2
+	 * Version:		1.0.3
 	 */
 
 	class Coupilia
 	{
-		public $token;
-		public $type = "json";
-		public $history = array();
-		public $debug = false;
-		public $filter = false;
+		public $cache	= array();
+		public $debug	= false;
+		public $filter	= false;
+		public $token	= '';
+		public $type	= 'json';
 
 		// A list of all available Coupilia categories
 		public $categories = array
@@ -171,78 +171,94 @@
 			$url = "http://www.coupilia.com/feeds/coupons_{$type}.cfm?" . http_build_query($params);
 
 			// If a cached version of this query exists, return it to save an expensive API call
-			if(isset($this->history[$url]))
+			if(isset($this->cache[$url]))
 			{
-				return isset($this->history[$url]['filtered_data']) ? $this->history[$url]['filtered_data'] : $this->history[$url]['data'];
+				$response = $this->cache[$url]['data'];
 			}
 
-			// If no cached version exists, add one
-			$this->history[$url] = array
-			(
-				"date" => time(),
-				"url" => $url
-			);
-
-			// Make the HTTP request (this used to use CURL, but file_get_contents is much more user-friendly)
-			$response = @file_get_contents($url);
-
-			// Clean up the response data
-			if($response)
+			// Otherwise, start the download & sanitation process
+			else
 			{
-				// Remove whitespace from either end of the data (slightly improves parsing speed)
-				$response = trim($response);
+				// Add to the cache
+				$this->cache[$url] = array
+				(
+					"date" => time(),
+					"url" => $url
+				);
 
-				// Add the raw response data to the history record
-				$this->history[$url]["response"] = $response;
-			}
+				// Make the HTTP request (this used to use CURL, but file_get_contents is much more user-friendly)
+				$response = @file_get_contents($url);
 
-			// Throw an exception if no data was received and debug mode is enabled
-			if(!$response and $this->debug) throw new Exception("Coupilia: Failed to retrieve data");
-
-			// Catch any exceptions - we only want to throw one if debug mode is enabled
-			try
-			{
-				// If the type is set to JSON
-				if($this->type == "json")
+				// Clean up the response data
+				if($response)
 				{
-					// Attempt to decode the data
-					$response = (array) json_decode($response);
+					// Remove whitespace from either end of the data (slightly improves parsing speed)
+					$response = trim($response);
+
+					// Add the raw response data to the cache
+					$this->cache[$url]["response"] = $response;
 				}
 
-				// If the type is set to XML
-				else
+				// Throw an exception if no data was received and debug mode is enabled
+				if(!$response and $this->debug) throw new Exception("Coupilia: Failed to retrieve data");
+
+				// Catch any exceptions - we only want to throw one if debug mode is enabled
+				try
 				{
-					// Attempt to decode the data
-					$xml = simplexml_load_string($response);
-					$response = array();
-
-					// Convert the SimpleXML objects to standard objects (for cleanliness)
-					foreach($xml->coupons->item as $c)
+					// If the type is set to JSON
+					if($this->type == "json")
 					{
-						$coupon = new StdObject();
+						// Attempt to decode the data
+						$response = (array) json_decode($response);
+					}
 
-						foreach($c as $key => $val)
+					// If the type is set to XML
+					else
+					{
+						// Attempt to decode the data
+						$xml = simplexml_load_string($response);
+						$response = array();
+
+						// Convert the SimpleXML objects to standard objects (for cleanliness)
+						foreach($xml->coupons->item as $c)
 						{
-							$coupon->{$key} = $val;
-						}
+							$coupon = new StdObject();
 
-						$response[] = $coupon;
+							foreach($c as $key => $val)
+							{
+								$coupon->{$key} = $val;
+							}
+
+							$response[] = $coupon;
+						}
 					}
 				}
+				catch(Exception $e)
+				{
+					// Throw an exception if debug mode is enabled
+					if($this->debug)
+					{
+						echo "Coupilia: " . $e->getMessage();
+
+						return array();
+					}
+				}
+
+				// Add the parsed response data to the cache
+				$this->cache[$url]["data"] = $response;
 			}
-			catch(Exception $e)
+
+			// If an error has occurred, throw an exception
+			if(isset($response['ERROR']) or isset($response['error']))
 			{
-				// Throw an exception if debug mode is enabled
+				// Only display an error is debug mode is on
 				if($this->debug)
 				{
-					echo "Coupilia: " . $e->getMessage();
-
-					return array();
+					echo 'Coupilia: ' . (isset($response['ERROR']) ? $response['ERROR'] : $response['error']);
 				}
-			}
 
-			// Add the parsed response data to the history record
-			$this->history[$url]["data"] = $response;
+				return array();
+			}
 
 			// Filter out any invalid coupons
 			if($this->filter)
@@ -255,18 +271,25 @@
 
 				foreach($response as $coupon)
 				{
-					// Get the exiration date as a timestamp
-					$exp = strtotime("00:00:00 " . (isset($coupon->ENDDATE) ? $coupon->ENDDATE : ($coupon->enddate ? $coupon->enddate : '1/1/1970')));
+					// If the coupon has an end date
+					if(isset($coupon->ENDDATE) or isset($coupon->enddate))
+					{
+						// Get the exiration date as a timestamp
+						$exp = strtotime("00:00:00 " . (isset($coupon->ENDDATE) ? $coupon->ENDDATE : (isset($coupon->enddate) ? $coupon->enddate : '1/1/1970')));
 
-					// If the expiration date is in the future, add the coupon to the valid coupons list
-					if($valid < $exp)
+						// If the expiration date is in the future, add the coupon to the valid coupons list
+						if($valid < $exp)
+						{
+							$valid_response[] = $coupon;
+						}
+					}
+
+					// If not, assume it is valid
+					else
 					{
 						$valid_response[] = $coupon;
 					}
 				}
-
-				// Push the filtered data to the history object
-				$this->history[$url]["filtered_data"] = $valid_response;
 
 				// Return the filtered data
 				return $valid_response;
@@ -279,6 +302,6 @@
 		public function lastQuery()
 		{
 			// Return the last used query
-			return end($this->history);
+			return end($this->cache);
 		}
 	}
