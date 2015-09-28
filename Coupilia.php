@@ -3,17 +3,16 @@
 	/* Custom PHP class for Coupilia Voucher System
 	 *
 	 * Author:		Ryan Boylett <http://boylett.uk/>
-	 * Update:		http://boylett.uk/classes/php/coupilia/update
-	 * Version:		1.0.3
+	 * URL:			https://github.com/boylett/Coupilia
+	 * Version:		1.0.4
 	 */
 
 	class Coupilia
 	{
 		public $cache	= array();
 		public $debug	= false;
-		public $filter	= false;
-		public $token	= '';
-		public $type	= 'json';
+
+		private $token;
 
 		// A list of all available Coupilia categories
 		public $categories = array
@@ -143,13 +142,114 @@
 
 		public function __construct($token)
 		{
-			// Setup the API token on initialization
+			// Store the API token on initialization
 			$this->token = $token;
 
 			return $this;
 		}
 
-		public function get($params = NULL, $type = NULL)
+		public function filter($data, $filters)
+		{
+			// Start a new collection
+			$valid_response = array();
+
+			foreach($data as $coupon)
+			{
+				// Coupons are validby default
+				$valid = true;
+
+				foreach($filters as $key => $val)
+				{
+					switch(trim(strtolower($key)))
+					{
+						case 'country':
+							// The coupon is valid if the country codes match
+							$valid = (trim(strtoupper($val)) == strtoupper($coupon->country));
+							break;
+
+						case 'end': case 'enddate': case 'ended':
+							// If the coupon has an end date
+							if(isset($coupon->enddate))
+							{
+								// Get the exiration date as a timestamp
+								$enddate = strtotime("00:00:00 " . (isset($coupon->enddate) ? $coupon->enddate : '1/1/1970'));
+
+								// If the end date is in the future, the coupon is valid
+								if((is_string($val) ? strtotime($val) : $val) < $enddate)
+								{
+									$valid = true;
+								}
+							}
+							break;
+
+						case 'haslogo': case 'logo':
+							// The coupon is valid if it has a logo image
+							$valid = (isset($coupon->logo) and trim($coupon->logo));
+							break;
+
+						case 'id':
+							// The coupon is valid if the IDs match
+							$valid = (is_int($val) and isset($coupon->id) and $coupon->id == $val);
+							break;
+
+						case 'rating':
+							// The coupon is valid if its rating falls between the criteria
+							$inverse = preg_match("/^!/", $val);
+							$comparator = preg_replace("/^!?((>|<|!|=)=?)([0-9]+)$/", "$2", $val);
+							$rating = preg_replace("/[^0-9]/", "", $val);
+
+							// Compare the ratings
+							switch($comparator)
+							{
+								case '<': $valid = ($val < $rating); break;
+								case '<=': $valid = ($val <= $rating); break;
+								case '>': $valid = ($val > $rating); break;
+								case '>=': $valid = ($val >= $rating); break;
+								case '!': case '!=': $valid = ($val != $rating); break;
+								default: $valid = ($val == $rating); break;
+							}
+
+							// If the comparator started with `!`, inverse the outcome
+							if($inverse)
+							{
+								$valid = ($valid ? false : true);
+							}
+							break;
+
+						case 'start': case 'startdate': case 'started':
+							// If the coupon has a start date
+							if(isset($coupon->startdate))
+							{
+								// Get the exiration date as a timestamp
+								$startdate = strtotime("00:00:00 " . (isset($coupon->startdate) ? $coupon->startdate : '1/1/1970'));
+
+								// If the start date is in the past, the coupon is valid
+								if((is_string($val) ? strtotime($val) : $val) >= $startdate)
+								{
+									$valid = true;
+								}
+							}
+							break;
+
+						case 'haswebsite': case 'website':
+							// The coupon is valid if it has a website link
+							$valid = (isset($coupon->website) and trim($coupon->website));
+							break;
+					}
+				}
+
+				// If the coupon is still valid, keep it
+				if($valid)
+				{
+					$valid_response[] = $coupon;
+				}
+			}
+
+			// Return the filtered data
+			return $valid_response;
+		}
+
+		public function get($params = NULL, $filters = array())
 		{
 			// If no parameters were supplied, we'll assume the user is testing the feed
 			if(!$params or !is_array($params))
@@ -163,12 +263,45 @@
 			// Supply the API token
 			$params["token"] = $this->token;
 
-			// Sanitize the desired feed type (makes no real difference to the end user)
-			$this->type = (preg_match("/^([\s]+)?json([\s]+)?$/i", $this->type)) ? "json" : "xml";
-			if(!$type) $type = $this->type;
+			// Check supplied filters array for any request filters we could use
+			foreach($filters as $key => $val)
+			{
+				$sanitarykey = trim(strtolower($key));
+				$sanitaryval = trim(strtolower($val));
+
+				switch($sanitarykey)
+				{
+					case 'merchant': case 'merchantid':
+						if(is_numeric($sanitaryval))
+						{
+							$params['merchantid'] = $sanitaryval;
+							unset($filters[$key]);
+						}
+						break;
+
+					case 'category': case 'dealtype': case 'holiday': case 'network':
+						$list = ($sanitarykey == 'category') ? 'categories' : $sanitarykey . 's';
+
+						if(isset($this->{$list}[$sanitaryval]))
+						{
+							$params[$sanitarykey] = $sanitaryval;
+							unset($filters[$key]);
+						}
+						else foreach($this->{$list} as $code => $network)
+						{
+							if($sanitaryval == trim(strtolower($network)))
+							{
+								$params[$sanitarykey] = $code;
+								unset($filters[$key]);
+								break;
+							}
+						}
+						break;
+				}
+			}
 
 			// Construct the HTTP request URL
-			$url = "http://www.coupilia.com/feeds/coupons_{$type}.cfm?" . http_build_query($params);
+			$url = "http://www.coupilia.com/feeds/coupons_json.cfm?" . http_build_query($params);
 
 			// If a cached version of this query exists, return it to save an expensive API call
 			if(isset($this->cache[$url]))
@@ -205,33 +338,37 @@
 				// Catch any exceptions - we only want to throw one if debug mode is enabled
 				try
 				{
-					// If the type is set to JSON
-					if($this->type == "json")
-					{
-						// Attempt to decode the data
-						$response = (array) json_decode($response);
-					}
+					// Attempt to decode the data
+					$response = (array) json_decode($response);
 
-					// If the type is set to XML
-					else
-					{
-						// Attempt to decode the data
-						$xml = simplexml_load_string($response);
-						$response = array();
+					// Clean up the response keys (lowercase)
+					$sanitary = array();
 
-						// Convert the SimpleXML objects to standard objects (for cleanliness)
-						foreach($xml->coupons->item as $c)
+					foreach($response as $coupon)
+					{
+						$sanitarycoupon = array();
+
+						foreach($coupon as $key => $val)
 						{
-							$coupon = new StdObject();
+							$key = strtolower($key);
 
-							foreach($c as $key => $val)
+							if(is_string($val) and preg_match("/^([0-9]{1,2})\/([0-9]{1,2})\/([0-9]{4})$/", $val))
 							{
-								$coupon->{$key} = $val;
+								$val = strtotime('00:00:00 ' . $val);
 							}
 
-							$response[] = $coupon;
+							else if($key == 'url')
+							{
+								$val = $val[0]->location;
+							}
+
+							$sanitarycoupon[$key] = $val;
 						}
+
+						$sanitary[] = (object) $sanitarycoupon;
 					}
+
+					$response = $sanitary;
 				}
 				catch(Exception $e)
 				{
@@ -249,50 +386,21 @@
 			}
 
 			// If an error has occurred, throw an exception
-			if(isset($response['ERROR']) or isset($response['error']))
+			if(isset($response['error']))
 			{
 				// Only display an error is debug mode is on
 				if($this->debug)
 				{
-					echo 'Coupilia: ' . (isset($response['ERROR']) ? $response['ERROR'] : $response['error']);
+					echo 'Coupilia: ' . $response['error'];
 				}
 
 				return array();
 			}
 
 			// Filter out any invalid coupons
-			if($this->filter)
+			if(!empty($filters))
 			{
-				// If no date was supplied, assume today
-				$valid = !is_int($this->filter) ? time() : $this->filter;
-
-				// Start a new collection
-				$valid_response = array();
-
-				foreach($response as $coupon)
-				{
-					// If the coupon has an end date
-					if(isset($coupon->ENDDATE) or isset($coupon->enddate))
-					{
-						// Get the exiration date as a timestamp
-						$exp = strtotime("00:00:00 " . (isset($coupon->ENDDATE) ? $coupon->ENDDATE : (isset($coupon->enddate) ? $coupon->enddate : '1/1/1970')));
-
-						// If the expiration date is in the future, add the coupon to the valid coupons list
-						if($valid < $exp)
-						{
-							$valid_response[] = $coupon;
-						}
-					}
-
-					// If not, assume it is valid
-					else
-					{
-						$valid_response[] = $coupon;
-					}
-				}
-
-				// Return the filtered data
-				return $valid_response;
+				return $this->filter($response, $filters);
 			}
 
 			// Return the data
