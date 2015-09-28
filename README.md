@@ -1,5 +1,5 @@
-#Coupilia 1.0.3
-***Updated 11:05am 28th August 2015***  
+#Coupilia 1.0.4
+***Updated 15:19am 28th September 2015***  
 A simple PHP Class for the [Coupilia Voucher feed](http://www.coupilia.com/) API
 
 ##Installation
@@ -12,22 +12,15 @@ No messy scripts or command line access required, simply copy `Coupilia.php` int
     $APIKey		= "ab123cde4-fghi-jk56-l7m8901n23";
     $Coupilia	= new Coupilia($APIKey);
     
-    $Coupilia->filter = true;
-    
     $vouchers	= $Coupilia->get(array
     (
         "recordset" => "all"
     ));
-
-##Available Options
-
-###`filter`
-Currently accepts a timestamp (integer) or boolean. Filters out coupons whose end date have surpassed the timestamp provided (or the current date if a boolean was given).
-
+   
 ##Available Methods
 
-###`get(Array $params, String $type)`
-Does the legwork for retrieving data from Coupilia's servers. `$type` can be `'json'` or `'xml'` or `NULL` (makes no difference to returned data but may affect performance depending on server setup).
+###`get(Array $params, Array $filter)`
+Does the legwork for retrieving data from Coupilia's servers.
 
 `$params` accepts the following values:
 
@@ -40,6 +33,8 @@ Does the legwork for retrieving data from Coupilia's servers. `$type` can be `'j
 | dealtype | optional | string | *Comma separated list of deal types:*<br>**affiliatelink** (Affiliate Link)<br>**bogo** (Buy one get one)<br>**coupon** (Coupon)<br>**deal** (Deal, price drop)<br>**shipping** (Free shipping)<br>**genericdeal** (Generic Deal)<br>**genericoffer** (Generic Offer)<br>**genericsale** (Generic Sale)<br>**gwp** (Gift with purchase)<br>**rebate** (Rebate)<br>**sale** (Sale)<br>**sitewide** (Sitewide) |
 | holiday | optional | string | *Comma separated list of holiday types:*<br>**backtoschool** (Back To School)<br>**blackfriday** (Black Friday)<br>**breastcancermonth** (Breast Cancer Month)<br>**cybermonday** (Cyber Monday)<br>**easter** (Easter)<br>**fathersday** (Fathers Day)<br>**friendsfamily** (Friends and Family)<br>**halloween** (Halloween)<br>**mothersday** (Mothers Day)<br>**thanksgiving** (Thanksgiving)<br>**valentinesday** (Valentines Day) |
 
+`$filters` can be an array of parameters to filter by (**See `filter` method below**)
+
 Returns a list of vouchers.  
 *Example:*
 
@@ -47,34 +42,42 @@ Returns a list of vouchers.
 	(
 		"0" => StdObject
 		(
-			"id" => [coupon id],
-			"merchant" => [merchant name],
-			"merchantid" => [merchant id],
-			"offer" => [coupon offer],
-			"restrictions" => [coupon restrictions],
-			"url" => StdObject
-			(
-				"0" => StdObject
-				(
-					"location" => [url location],
-					"label" => [label]
-				)
-			),
-			"code" => [coupon code],
-			"startdate" => [coupon start date],
-			"enddate" => [coupon end date],
-			"category" => [coupon category],
-			"dealtype" => [coupon deal type],
-			"holiday" => [coupon holiday],
-			"rating" => [coupon rating],
-			"website" => [merchant website],
-			"logo" => [merchant logo],
-			"network" => [coupon network],
-			"networkid" => [merchant id for affiliate network],
-			"keywords" => [coupon keywords],
-			"country" => [coupon country]
+			"id"			=> int		[coupon id],
+			"merchant"		=> string	[merchant name],
+			"merchantid"	=> int		[merchant id],
+			"offer"			=> string	[coupon offer],
+			"restrictions"	=> int		[coupon restrictions],
+			"url"			=> string	[url location],
+			"code"			=> string	[coupon code],
+			"startdate"		=> int		[coupon start date],
+			"enddate"		=> int		[coupon end date],
+			"category"		=> string	[coupon category],
+			"dealtype"		=> string	[coupon deal type],
+			"holiday"		=> string	[coupon holiday],
+			"rating"		=> int		[coupon rating],
+			"website"		=> string	[merchant website],
+			"logo"			=> string	[merchant logo],
+			"network"		=> string	[coupon network],
+			"networkid"		=> int		[merchant id for affiliate network],
+			"keywords"		=> string	[coupon keywords],
+			"country"		=> string	[coupon country]
 		)
 	)
+
+###`filter(Array $data, Array $filters)`
+Filters an array of data
+
+`$filters` accepts the following values:
+
+| Parameter | Type | Effect |
+|-----------|------|--------|
+| id | int | Retrieve a coupon by ID |
+| country | string | Filters data by country code |
+| logo | bool | Removes data with no logo image |
+| website | bool | Removes data with no website link |
+| rating | int | Removes data that does not comply with the provided rating parameters<br><br>***You can use comparators here:***<br>`"rating" => ">2"` will result in coupons with a rating higher than 2<br>`"rating" => "<2"` will result in coupons with a rating lower than 2<br><br>**Available comparators:**<br>`>` Higher than<br>`>=` Higher than or equal to<br>`<` Lower than<br>`<=` Lower than or equal to<br>`=` Equal to<br><br>*All of the above can be inversed with `!`, for example:*<br>`"rating" => "!=3"` - Coupons with a rating that is not qual to 3 |
+| enddate | string ***or***<br>int | Removes data that has passed the provided date |
+| startdate | string ***or***<br>int | Removes data that has not yet passed the provided date |
 
 ###`lastQuery()`
 Returns the last query's information.  
