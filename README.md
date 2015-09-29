@@ -1,5 +1,5 @@
 #Coupilia 1.0.5
-***Updated 12:08pm 29th September 2015***
+***Updated 12:08pm 29th September 2015***  
 A simple PHP Class for the [Coupilia Voucher feed](http://www.coupilia.com/) API
 
 ##Installation
