@@ -12,7 +12,7 @@ No messy scripts or command line access required, simply copy `Coupilia.php` int
     $APIKey		= "ab123cde4-fghi-jk56-l7m8901n23";
     $Coupilia	= new Coupilia($APIKey);
 
-    $vouchers	= $Coupilia->get(array
+    $Coupons	= $Coupilia->get(array
     (
         "recordset" => "all"
     ));
