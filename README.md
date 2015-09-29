@@ -22,7 +22,7 @@ No messy scripts or command line access required, simply copy `Coupilia.php` int
 ###`get(Int $couponid, [Array $filters])`
 Retrieves a specific coupon from the Coupilia service.
 
-`$couponid` must be an integer and specifies which Coupon to retrieve.
+`$couponid` must be an integer and specifies which Coupon to retrieve.  
 `$filters` can be an array of parameters to filter by (**See `filter` method below**)
 
 ###`get(Array $params, [Array $filters])`
