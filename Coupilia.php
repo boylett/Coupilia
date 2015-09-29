@@ -4,7 +4,7 @@
 	 *
 	 * Author:		Ryan Boylett <http://boylett.uk/>
 	 * URL:			https://github.com/boylett/Coupilia
-	 * Version:		1.0.4
+	 * Version:		1.0.5
 	 */
 
 	class Coupilia
@@ -187,11 +187,6 @@
 							$valid = (isset($coupon->logo) and trim($coupon->logo));
 							break;
 
-						case 'id':
-							// The coupon is valid if the IDs match
-							$valid = (is_int($val) and isset($coupon->id) and $coupon->id == $val);
-							break;
-
 						case 'rating':
 							// The coupon is valid if its rating falls between the criteria
 							$inverse = preg_match("/^!/", $val);
@@ -260,6 +255,15 @@
 				);
 			}
 
+			else if(is_int($params))
+			{
+				$params = array
+				(
+					"recordset" => "all",
+					"couponid" => $params
+				);
+			}
+
 			// Supply the API token
 			$params["token"] = $this->token;
 
@@ -271,10 +275,12 @@
 
 				switch($sanitarykey)
 				{
-					case 'merchant': case 'merchantid':
+					case 'coupon': case 'couponid': case 'id': case 'merchant': case 'merchantid':
+						$param = preg_match("/merchant/i", $sanitarykey) ? 'merchantid' : 'couponid';
+
 						if(is_numeric($sanitaryval))
 						{
-							$params['merchantid'] = $sanitaryval;
+							$params[$param] = $sanitaryval;
 							unset($filters[$key]);
 						}
 						break;
