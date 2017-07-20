@@ -1,13 +1,13 @@
-#Coupilia 1.0.5
+# Coupilia 1.0.5
 ***Updated 12:08pm 29th September 2015***  
 A simple PHP Class for the [Coupilia Voucher feed](http://www.coupilia.com/) API
 
-##Installation
+## Installation
 No messy scripts or command line access required, simply copy `Coupilia.php` into your active directory and include it with `require`
 
     require 'Coupilia.php';
 
-##Usage Example
+## Usage Example
 
     $APIKey		= "ab123cde4-fghi-jk56-l7m8901n23";
     $Coupilia	= new Coupilia($APIKey);
@@ -17,15 +17,15 @@ No messy scripts or command line access required, simply copy `Coupilia.php` int
         "recordset" => "all"
     ));
 
-##Available Methods
+## Available Methods
 
-###`get(Int $couponid, [Array $filters])`
+### `get(Int $couponid, [Array $filters])`
 Retrieves a specific coupon from the Coupilia service.
 
 `$couponid` must be an integer and specifies which Coupon to retrieve.  
 `$filters` can be an array of parameters to filter by (**See `filter` method below**)
 
-###`get(Array $params, [Array $filters])`
+### `get(Array $params, [Array $filters])`
 Retrieves a list of coupons from the Coupilia service.
 
 `$params` accepts the following values:
@@ -71,7 +71,7 @@ Returns a list of vouchers.
 		)
 	)
 
-###`filter(Array $data, Array $filters)`
+### `filter(Array $data, Array $filters)`
 Filters an array of data
 
 `$filters` accepts the following values:
@@ -86,7 +86,7 @@ Filters an array of data
 | enddate | string ***or***<br>int | Removes data that has passed the provided date |
 | startdate | string ***or***<br>int | Removes data that has not yet passed the provided date |
 
-###`lastQuery()`
+### `lastQuery()`
 Returns the last query's information.
 *Example:*
 
